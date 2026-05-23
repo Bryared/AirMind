@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Wind, Activity, BookOpen,
   MessageCircle, Sparkles, X, Send, Leaf,
-  PlayCircle, PauseCircle
+  PlayCircle, PauseCircle, Settings, Droplets, Star, RefreshCw
 } from 'lucide-react';
 import { clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
@@ -83,6 +83,7 @@ const CROP_LIBRARY: Crop[] = [
 ];
 
 const AI_RESPONSES: string[] = [
+  "¡Hola! Tú relájate, yo me encargo de medir la química del agua por ti. 🧪",
   "¡Todo se ve genial! 🌟 El sistema autónomo mantiene el pH estable.",
   "He notado que hace calor. No te preocupes, aumenté el riego automáticamente. 💧",
   "¿Sabías que tus Capuchinas son comestibles? ¡Pruébalas en ensalada! 🥗",
@@ -182,6 +183,28 @@ const DashboardScreen: React.FC<DashboardProps> = ({ currentCrop, cropDay, senso
         </div>
       </div>
     </section>
+    {/* NUEVO: MÓDULO DE IMPACTO CESAL (Cuantificar Todo) */}
+    <section className="grid grid-cols-2 gap-3 mb-6">
+      <div className="glass-panel p-3 rounded-2xl flex items-center gap-3 border border-[#4ADE80]/20">
+        <div className="p-2 bg-[#4ADE80]/20 rounded-full text-[#4ADE80]">
+          <Droplets size={20} />
+        </div>
+        <div>
+          <span className="block text-xs text-gray-400 font-bold uppercase">Agua Ahorrada</span>
+          <span className="text-lg font-black text-white">90%</span>
+        </div>
+      </div>
+      <div className="glass-panel p-3 rounded-2xl flex items-center gap-3 border border-[#0E7490]/20">
+        <div className="p-2 bg-[#0E7490]/20 rounded-full text-[#0E7490]">
+          <Activity size={20} />
+        </div>
+        <div>
+          <span className="block text-xs text-gray-400 font-bold uppercase">Cosecha Rápida</span>
+          <span className="text-lg font-black text-white">30%</span>
+        </div>
+      </div>
+    </section>
+
     {/* 2. SEMÁFORO DE VARIABLES (Simplificado) */}
     <section>
       <h3 className="font-heading font-bold text-lg text-white mb-4 flex items-center gap-2 px-2">
@@ -222,6 +245,64 @@ const DashboardScreen: React.FC<DashboardProps> = ({ currentCrop, cropDay, senso
     </section>
   </div>
 );
+
+// --- PANTALLA DE CONFIGURACIÓN Y SUMINISTROS (CESAL CLV) ---
+const SettingsScreen: React.FC = () => {
+  const [rating, setRating] = useState<number>(0);
+  return (
+    <div className="space-y-6 animate-in slide-in-from-right-10 duration-500">
+      <div className="px-2">
+        <h2 className="text-2xl font-heading font-bold mb-2">Configuración <span className="text-[#0E7490]">.</span></h2>
+        <p className="text-sm text-gray-400">Gestiona tus suministros y preferencias del sistema.</p>
+      </div>
+
+      {/* Validar Modelo de Ingresos (Suministros) */}
+      <section className="glass-panel rounded-2xl p-5 border border-[#E0B0FF]/20">
+        <h3 className="font-bold text-white flex items-center gap-2 mb-4">
+          <RefreshCw size={18} className="text-[#E0B0FF]" /> Suministros (Suscripción)
+        </h3>
+        
+        <div className="space-y-4 mb-4">
+          <div>
+            <div className="flex justify-between text-xs text-gray-400 font-bold uppercase mb-1">
+              <span>Cartucho Nutrientes A+B</span>
+              <span className="text-yellow-400">15%</span>
+            </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-yellow-400 rounded-full" style={{ width: '15%' }}></div>
+            </div>
+          </div>
+          <div>
+            <div className="flex justify-between text-xs text-gray-400 font-bold uppercase mb-1">
+              <span>Regulador pH Down</span>
+              <span className="text-[#4ADE80]">60%</span>
+            </div>
+            <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+              <div className="h-full bg-[#4ADE80] rounded-full" style={{ width: '60%' }}></div>
+            </div>
+          </div>
+        </div>
+
+        <button className="w-full bg-[#E0B0FF] text-[#0B1021] font-bold py-3 rounded-xl hover:scale-[1.02] transition active:scale-95">
+          Renovar Suscripción de Pods
+        </button>
+      </section>
+
+      {/* NPS Feedback (Medir) */}
+      <section className="glass-panel rounded-2xl p-5">
+        <h3 className="font-bold text-white text-center text-sm mb-3">¿Recomendarías AirMind a un amigo?</h3>
+        <div className="flex justify-center gap-2">
+          {[1, 2, 3, 4, 5].map((star) => (
+            <button key={star} onClick={() => setRating(star)} className="focus:outline-none hover:scale-110 transition">
+              <Star size={28} className={star <= rating ? "fill-yellow-400 text-yellow-400" : "text-gray-600"} />
+            </button>
+          ))}
+        </div>
+        {rating > 0 && <p className="text-center text-xs text-[#4ADE80] mt-2 animate-in fade-in">¡Gracias por tu feedback!</p>}
+      </section>
+    </div>
+  );
+};
 
 interface LibraryProps { onSelectCrop: (crop: Crop) => void; }
 const LibraryScreen: React.FC<LibraryProps> = ({ onSelectCrop }) => (
@@ -270,7 +351,7 @@ const LibraryScreen: React.FC<LibraryProps> = ({ onSelectCrop }) => (
 
 interface ChatProps { isOpen: boolean; onClose: () => void; }
 const BrotesChat: React.FC<ChatProps> = ({ isOpen, onClose }) => {
-  const [msgs, setMsgs] = useState<{ from: 'ai' | 'user'; text: string }[]>([{ from: 'ai', text: '¡Hola! Soy Brotes 🌱. ¿En qué te ayudo?' }]);
+  const [msgs, setMsgs] = useState<{ from: 'ai' | 'user'; text: string }[]>([{ from: 'ai', text: '¡Hola! Soy Brotes 🌱. Tú relájate, yo me encargo de la química del agua por ti. ¿En qué te ayudo?' }]);
   const [input, setInput] = useState('');
 
   const send = () => {
@@ -365,14 +446,20 @@ const AirMindApp: React.FC = () => {
             {tab === 'monitor' ? 'Centro de Control' : 'Configuración'}
           </p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <button
             onClick={() => setShowScience(!showScience)}
             className={cn("p-2 rounded-full transition", showScience ? "bg-[#4ADE80] text-[#0B1021]" : "bg-white/5 text-gray-400")}
           >
             <BookOpen size={20} />
           </button>
-          <div className="w-10 h-10 rounded-full border-2 border-white/20 p-0.5">
+          <button 
+            onClick={() => setTab('settings')}
+            className={cn("p-2 rounded-full transition", tab === 'settings' ? "bg-[#0E7490] text-white" : "bg-white/5 text-gray-400 hover:text-white")}
+          >
+            <Settings size={20} />
+          </button>
+          <div className="w-10 h-10 rounded-full border-2 border-white/20 p-0.5 ml-1">
             <img src="https://api.dicebear.com/7.x/notionists/svg?seed=Felix" className="rounded-full bg-white/10" />
           </div>
         </div>
@@ -390,6 +477,9 @@ const AirMindApp: React.FC = () => {
         )}
         {tab === 'library' && (
           <LibraryScreen onSelectCrop={handleSelectCrop} />
+        )}
+        {tab === 'settings' && (
+          <SettingsScreen />
         )}
         {/* MÓDULO CIENTÍFICO (Expandible) */}
         {showScience && (
